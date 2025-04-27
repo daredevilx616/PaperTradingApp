@@ -65,13 +65,29 @@ cd python
 pip install -r requirements.txt
 ```
 
-Create a `secrets.env` file in the python directory:
+- **Make sure to store important keys in Azure Key Vault Secrets and make them accessible** 
+
+Set Spark Config
+```
+spark.conf.set("fs.azure.account.key.<Storage Account>.dfs.core.windows.net", secret.value)
+```
+
+Create a `secrets.env` file in the python directory to retrieve data from ADLS:
 ```
 AZURE_CLIENT_ID="YOUR_CLIENT_ID"
 AZURE_TENANT_ID="YOUR_TENANT_ID"
 AZURE_CLIENT_SECRET="YOUR_CLIENT_SECRET"
 ```
 
+- **Make sure you have data available in Azure Blob Storage in detla table (parquet) format.** 
+
+Accessing Data
+```
+df = spark.read.format("delta").load("abfss://<Blob Container>@<Storage Account>.dfs.core.windows.net/<path/to/delta/table>")
+
+example:
+df = spark.read.format("delta").load("abfss://data@pprtradingstorage.dfs.core.windows.net/clean/stocks_data/")
+```
 *Note: If using Anaconda, place the following JAR files in `/opt/anaconda3/envs/trading/jars`:*
 - hadoop-azure-datalake-3.3.1.jar
 - hadoop-azure-3.3.1.jar
@@ -140,7 +156,7 @@ python/
 ```
 
 ## Known Limitations
-- Limited to specific stock symbols (currently supports top 10 US stocks)
+- Limited to specific stock symbols (currently supports top 14 US stocks)
 - Uses simulated market data in development environment
 - Supports basic order types only (market orders)
 - No options or derivatives trading
